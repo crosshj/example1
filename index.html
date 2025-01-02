@@ -1,1 +1,109 @@
-hello
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #282c34;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const player = { x: canvas.width / 2, y: canvas.height - 50, width: 50, height: 10, speed: 10 };
+    const fallingObjects = [];
+    const keys = {};
+    let score = 0;
+
+    // Create a falling object
+    function createFallingObject() {
+      const size = Math.random() * 20 + 10;
+      fallingObjects.push({
+        x: Math.random() * canvas.width,
+        y: -size,
+        size: size,
+        speed: Math.random() * 3 + 2,
+      });
+    }
+
+    // Handle player movement
+    function movePlayer() {
+      if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+      if (keys["ArrowRight"] && player.x + player.width < canvas.width) player.x += player.speed;
+    }
+
+    // Update game objects
+    function update() {
+      fallingObjects.forEach((obj, index) => {
+        obj.y += obj.speed;
+        if (
+          obj.y + obj.size > player.y &&
+          obj.x + obj.size > player.x &&
+          obj.x < player.x + player.width
+        ) {
+          alert("Game Over! Your Score: " + score);
+          document.location.reload();
+        }
+        if (obj.y > canvas.height) {
+          fallingObjects.splice(index, 1);
+          score++;
+        }
+      });
+    }
+
+    // Draw the game
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw player
+      ctx.fillStyle = "cyan";
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+
+      // Draw falling objects
+      fallingObjects.forEach((obj) => {
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.arc(obj.x, obj.y, obj.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+      });
+
+      // Draw score
+      ctx.font = "20px Arial";
+      ctx.fillStyle = "white";
+      ctx.fillText("Score: " + score, 10, 30);
+    }
+
+    // Game loop
+    function gameLoop() {
+      movePlayer();
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Event listeners
+    window.addEventListener("keydown", (e) => (keys[e.key] = true));
+    window.addEventListener("keyup", (e) => (keys[e.key] = false));
+
+    setInterval(createFallingObject, 1000);
+    gameLoop();
+  </script>
+</body>
+</html>
