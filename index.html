@@ -48,24 +48,27 @@
       if (keys["ArrowRight"] && player.x + player.width < canvas.width) player.x += player.speed;
     }
 
-    // Update game objects
     function update() {
-      fallingObjects.forEach((obj, index) => {
-        obj.y += obj.speed;
-        if (
-          obj.y + obj.size > player.y &&
-          obj.x + obj.size > player.x &&
-          obj.x < player.x + player.width
-        ) {
-          alert("Game Over! Your Score: " + score);
-          document.location.reload();
-        }
-        if (obj.y > canvas.height) {
-          fallingObjects.splice(index, 1);
-          score++;
-        }
-      });
+  fallingObjects.forEach((obj, index) => {
+    obj.y += obj.speed;
+
+    // Check if the object hits the platform
+    if (
+      obj.y + obj.size > player.y && // Ball reaches the player's y position
+      obj.x + obj.size > player.x && // Ball's x overlaps the player
+      obj.x < player.x + player.width
+    ) {
+      score++; // Increment score
+      fallingObjects.splice(index, 1); // Remove the object
     }
+
+    // Remove the object if it falls off the screen
+    if (obj.y > canvas.height) {
+      fallingObjects.splice(index, 1);
+    }
+  });
+}
+
 
     // Draw the game
     function draw() {
